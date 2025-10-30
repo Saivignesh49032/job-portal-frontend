@@ -1,15 +1,18 @@
 pipeline {
-  agent any // Correct syntax for this Jenkins version
+  // Use 'any' agent correctly
+  agent any 
 
   environment {
-    // FRONTEND Application ID for Dokploy
+    // FRONTEND Application ID for Dokploy (Your retrieved ID)
     APP_ID = "yz9xW_7ZSmNsSiknvDctq"
   }
 
   parameters {
     string(name: 'DEPLOY_URL_CRED_ID', defaultValue: 'DEPLOY_URL', description: 'Credentials ID for the deployment URL (Secret Text)')
     string(name: 'DEPLOY_KEY_CRED_ID', defaultValue: 'DEPLOY_KEY', description: 'Credentials ID for the deployment API key (Secret Text)')
+    
     // Parameter to pass the Backend API URL (Your Dokploy server IP)
+    // NOTE: Port 8000 is used because that's where Django runs inside the container
     string(name: 'VITE_CANDIDATES_ENDPOINT', 
            defaultValue: 'http://65.0.68.233:8000/api/candidates/', 
            description: 'Endpoint for candidates API used by the frontend')
@@ -24,7 +27,7 @@ pipeline {
 
     stage('Setup .env') {
       steps {
-        // Creates the .env file needed by React to know the backend URL
+        // FIX: Writes the backend URL parameter directly into the .env file
         sh "echo 'VITE_CANDIDATES_ENDPOINT=${params.VITE_CANDIDATES_ENDPOINT}' > .env"
         sh 'echo ".env created with VITE_CANDIDATES_ENDPOINT"'
       }
@@ -32,15 +35,20 @@ pipeline {
 
     stage('Install dependencies') {
       steps {
-        // Installs Node.js dependencies
         sh 'npm install' 
       }
     }
     
     stage('Run tests') {
       steps {
-        // Runs frontend tests (e.g., Jest/React Testing Library)
         sh 'npm test -- --run'
+      }
+    }
+
+    // New stage to build the production files
+    stage('Build Application') {
+      steps {
+        sh 'npm run build'
       }
     }
   }
