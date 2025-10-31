@@ -4,7 +4,7 @@ pipeline {
 
   environment {
     // FRONTEND Application ID for Dokploy (Your retrieved ID)
-    APP_ID = "yz9xW_7ZSmNsSiknvDctq"
+    APP_ID = "RBm-9bguzYbwyrpquH_S_"
   }
 
   parameters {
